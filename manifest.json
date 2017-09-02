@@ -1,0 +1,11 @@
+{
+  "description": "Tabless Browsing",
+  "homepage_url": "http://stebalien.com/projects/tabless",
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": ["tabs"],
+  "name": "Tabless",
+  "version": "1.0"
+}
