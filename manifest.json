@@ -8,10 +8,17 @@
   },
   "homepage_url": "http://stebalien.com/projects/tabless",
   "manifest_version": 2,
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["unload.js"]
+    }
+  ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["background.js"],
+    "persistent": false
   },
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "<all_urls>"],
   "name": "Tabless",
   "version": "1.0"
 }
