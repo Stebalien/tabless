@@ -1,5 +1,5 @@
 {
-  "description": "Tabless Browsing",
+  "description": "Tabless Suspenders",
   "applications": {
     "gecko": {
       "id": "tabless@stebalien.com",
@@ -8,20 +8,16 @@
   },
   "homepage_url": "http://stebalien.com/projects/tabless",
   "manifest_version": 2,
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["unload.js"]
-    }
-  ],
   "background": {
     "scripts": ["background.js"]
   },
   "browser_action": {
     "default_icon": "sleep.png",
-    "default_title": "Suspend Tabs"
+    "default_title": "Tabless Suspenders",
+    "browser_style": true,
+    "default_popup": "popup.html"
   },
-  "permissions": ["tabs", "<all_urls>"],
-  "name": "Tabless",
+  "permissions": ["tabs", "<all_urls>", "sessions", "history"],
+  "name": "Tabless Suspenders",
   "version": "1.0"
 }

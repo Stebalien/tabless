@@ -1,21 +1,34 @@
 /* global document, window, browser, URLSearchParams */
 
-(function () {
+(async function () {
   'use strict'
 
-  const params = new URLSearchParams(window.location.hash.slice(1))
-
-  document.title = params.get('title')
-  const screenshot = params.get('screenshot')
-  if (screenshot) {
-    document.getElementById('screenshot').src = screenshot
-  }
-
-  function resume () {
-    browser.runtime.sendMessage({
+  async function resume () {
+    await browser.runtime.sendMessage({
       type: 'resume'
     })
   }
+
+  async function loadImage (el, src) {
+    const promise = new Promise((resolve, reject) => {
+      el.addEventListener('load', () => resolve(), {once: true})
+      el.addEventListener('error', (e) => reject(e), {once: true})
+    })
+    el.src = src
+    return promise
+  }
+
+  document.body.addEventListener('click', resume)
+
+  const params = new URLSearchParams(window.location.hash.slice(1))
+  document.title = params.get('title')
+
+  const state = await browser.runtime.sendMessage({type: 'suspend_begin'})
+  if (state.screenshot) {
+    await loadImage(document.getElementById('screenshot'), state.screenshot)
+  }
+
+  await browser.runtime.sendMessage({type: 'suspend_complete'})
 
   /*
   var showTimeout = null
@@ -36,6 +49,4 @@
     onVisibilityChange()
   }
   */
-
-  document.body.addEventListener('click', resume)
 })()
