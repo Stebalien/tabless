@@ -17,10 +17,15 @@
     })
   }
 
+  /*
   var showTimeout = null
   function onVisibilityChange () {
     if (document.visibilityState === 'visible') {
-      showTimeout = setTimeout(resume, 3000)
+      showTimeout = setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+          resume()
+        }
+      }, 3000)
     } else if (showTimeout != null) {
       clearTimeout(showTimeout)
       showTimeout = null
@@ -30,6 +35,7 @@
   if (document.visibilityState === 'visible') {
     onVisibilityChange()
   }
+  */
 
   document.body.addEventListener('click', resume)
 })()

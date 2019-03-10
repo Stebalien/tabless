@@ -107,8 +107,11 @@
         break
     }
   })
-  browser.browserAction.onClicked.addListener(async () => {
-    for (const tab of await browser.tabs.query({url: '*://*', discarded: false})) {
+  browser.browserAction.onClicked.addListener(async (currentTab) => {
+    for (const tab of await browser.tabs.query({url: '*://*/*', discarded: false})) {
+      if (currentTab.id === tab.id) {
+        continue
+      }
       suspendTab(tab)
     }
   })
