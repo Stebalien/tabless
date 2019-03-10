@@ -1,3 +1,5 @@
+/* global document, window, browser */
+
 (function () {
   'use strict'
 
@@ -10,7 +12,7 @@
   var hideTimeout = null
   function onVisibilityChange () {
     if (document.visibilityState === 'hidden') {
-      hideTimeout = setTimeout(suspend, 2000)
+      hideTimeout = setTimeout(suspend, 30000)
     } else if (hideTimeout != null) {
       clearTimeout(hideTimeout)
       hideTimeout = null
