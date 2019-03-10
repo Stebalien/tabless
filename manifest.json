@@ -10,7 +10,7 @@
   "manifest_version": 2,
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["*://*"],
       "js": ["unload.js"]
     }
   ],
@@ -18,7 +18,10 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "permissions": ["tabs", "<all_urls>"],
+  "browser_action": {
+    "default_icon": "sleep.png"
+  },
+  "permissions": ["tabs", "*://*"],
   "name": "Tabless",
   "version": "1.0"
 }

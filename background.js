@@ -107,6 +107,11 @@
         break
     }
   })
+  browser.browserAction.onClicked.addListener(async () => {
+    for (const tab of await browser.tabs.query({url: '*://*', discarded: false})) {
+      suspendTab(tab)
+    }
+  })
 
   for (const tab of await browser.tabs.query({})) {
     registerTab(tab)
