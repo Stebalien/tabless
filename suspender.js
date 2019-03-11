@@ -1,6 +1,6 @@
 /* global browser */
 
-import {KeyedLock, Once, debounce} from './util.js'
+import {Once, debounce} from './util.js'
 
 const SuspendUrl = browser.runtime.getURL('suspended.html')
 
@@ -18,9 +18,7 @@ const forgetClosedTabs = debounce(async function forgetClosedTabs () {
 
 async function tabState (tab) {
   return {
-    screenshot: await browser.tabs.captureTab(tab.id, {
-      format: 'png',
-    }),
+    screenshot: await browser.tabs.captureTab(tab.id),
     title: tab.title
   }
 }
@@ -28,12 +26,6 @@ async function sendState (tab, state) {
   return browser.tabs.executeScript(tab.id, {code: `setState(${JSON.stringify(state)})`})
 }
 class Suspender {
-  constructor () {
-    this.suspendLocks = new KeyedLock()
-    this.suspendedToSuspender = new Map()
-    this.suspenderToSuspended = new Map()
-  }
-
   async suspendTab (tab) {
     if (tab.url.startsWith(SuspendUrl)) {
       // "it worked"
@@ -105,8 +97,7 @@ class Suspender {
 
   async _processSuspendTabMessage (message, sender) {
     if (!sender.tab.url.startsWith(SuspendUrl)) {
-      // throw new Error('permission denied')
-      return
+      throw new Error('permission denied')
     }
 
     switch (message.type) {
@@ -129,10 +120,15 @@ class Suspender {
     return Promise.all((await browser.tabs.query({
       url: SuspendUrl
     })).map(async tab => {
+      if (tab.title !== 'Suspended Tab') {
+        return
+      }
       const state = await browser.sessions.getTabValue(tab.id, 'state')
       if (state == null) {
         await browser.tabs.remove([tab.id])
       }
+
+      await browser.tabs.reload(tab.id) // needs to be reloaded on restart.
       await sendState(tab, state)
     }))
   }

@@ -10,7 +10,7 @@ async function resume () {
 document.body.addEventListener('click', () => resume())
 
 function setState(state) {
-  document.title = state.title
+  document.title = `${state.title} [z]`
   if (state.screenshot) {
     document.getElementById('screenshot').src = state.screenshot
   }

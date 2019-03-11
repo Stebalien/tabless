@@ -5,10 +5,19 @@
         <title>Tabless Suspenders</title>
     </head>
     <body>
-        <div class="panel">
-            <button id="suspend-current" class="browser-style">Suspend Current</button>
-            <button id="suspend-all" class="browser-style">Suspend All</button>
-            <button id="resume-all" class="browser-style">Resume All</button>
+        <div class="panel-section-header">
+            <span class="text-section-header">Tabless Suspenders</span>
+        </div>
+        <div class="panel-section-list">
+            <div class="panel-selection-list-item">
+                <button id="suspend-current" class="browser-style">Suspend Current</button>
+            </div>
+            <div class="panel-selection-list-item">
+                <button id="suspend-all" class="panel-selection-list-item browser-style">Suspend All</button>
+            </div>
+            <div class="panel-selection-list-item">
+                <button id="resume-all" class="panel-selection-list-item browser-style">Resume All</button>
+            </div>
         </div>
         <script src="popup.js"></script>
     </body>
