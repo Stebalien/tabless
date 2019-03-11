@@ -1,5 +1,6 @@
 body {
     cursor: pointer;
+    background: black;
 }
 
 #icon {
@@ -28,9 +29,7 @@ body {
     right: 0;
     top: 0; 
     bottom: 0;
-    height: 100%;
-    width: 100%;
-    filter: blur(2px);
+    margin: auto;
     background: black;
     object-fit: cover;
     object-position: left;
