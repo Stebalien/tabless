@@ -6,7 +6,7 @@ const SuspendUrl = browser.runtime.getURL('suspended.html')
 
 const cleanHistory = debounce(async function cleanHistory () {
   await browser.history.deleteUrl({url: SuspendUrl})
-})
+}, 100)
 
 const forgetClosedTabs = debounce(async function forgetClosedTabs () {
   await Promise.all((await browser.sessions.getRecentlyClosed()).filter(
