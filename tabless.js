@@ -36,7 +36,9 @@ class Tabless {
       return
     }
 
-    if (tab.url === 'about:blank' && tab.title !== 'New Tab') {
+    if (tab.url === 'about:blank' && (
+      (tab.height === 0 && tab.width === 0) || tab.title !== 'New Tab'
+    )) {
       return
     }
 
