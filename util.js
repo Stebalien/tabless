@@ -107,6 +107,17 @@ export function debounce (func, wait) {
   }
 }
 
+export async function spawn (func) {
+  await sleep(0)
+  return func()
+}
+
+export async function sleep (time) {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, time)
+  })
+}
+
 export class Once {
   constructor () {
     this.promise = null

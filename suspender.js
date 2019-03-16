@@ -117,20 +117,32 @@ class Suspender {
     browser.tabs.onRemoved.addListener(async (tabId) => forgetClosedTabs())
     browser.runtime.onMessage.addListener(async (message, sender) => this._processSuspendTabMessage(message, sender))
 
-    return Promise.all((await browser.tabs.query({
-      url: SuspendUrl
-    })).map(async tab => {
-      if (tab.title !== 'Suspended Tab') {
-        return
-      }
-      const state = await browser.sessions.getTabValue(tab.id, 'state')
-      if (state == null) {
-        await browser.tabs.remove([tab.id])
-      }
+    const states = await Promise.all(
+      (await browser.tabs.query({
+        url: SuspendUrl
+      })).map(async tab => {
+        return {
+          tab: tab,
+          state: await browser.sessions.getTabValue(tab.id, 'state')
+        }
+      })
+    )
+    const staleTabs = states
+      .filter(state => state.state == null)
+      .map(state => state.tab.id)
 
-      await browser.tabs.reload(tab.id) // needs to be reloaded on restart.
-      await sendState(tab, state)
-    }))
+    if (staleTabs.length > 0) {
+      await browser.tabs.remove(staleTabs)
+    }
+
+    // Cleanup
+    cleanHistory()
+    forgetClosedTabs()
+
+    // Send states in the background
+    states.filter(state => state.state != null)
+      .filter(active => active.tab.title === 'Suspended Tab')
+      .forEach(active => sendState(active.tab, active.state))
   }
 }
 
