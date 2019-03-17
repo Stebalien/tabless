@@ -19,7 +19,7 @@ const forgetClosedTabs = debounce(async function forgetClosedTabs () {
 async function tabState (tabId) {
   return {
     screenshot: await browser.tabs.captureTab(tabId),
-    title: await browser.tabs.get(tabId).title
+    title: (await browser.tabs.get(tabId)).title
   }
 }
 
