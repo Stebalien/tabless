@@ -17,7 +17,7 @@
     "browser_style": true,
     "default_popup": "popup.html"
   },
-  "permissions": ["tabs", "<all_urls>", "sessions", "history"],
+  "permissions": ["tabs", "<all_urls>", "sessions", "history", "webNavigation"],
   "name": "Tabless Suspenders",
   "version": "1.0"
 }

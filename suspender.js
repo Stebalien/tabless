@@ -6,7 +6,7 @@ const SuspendUrl = browser.runtime.getURL('suspended.html')
 
 const cleanHistory = debounce(async function cleanHistory () {
   await browser.history.deleteUrl({url: SuspendUrl})
-}, 100)
+}, 3000)
 
 const forgetClosedTabs = debounce(async function forgetClosedTabs () {
   await Promise.all((await browser.sessions.getRecentlyClosed()).filter(
@@ -14,17 +14,19 @@ const forgetClosedTabs = debounce(async function forgetClosedTabs () {
   ).map(
     session => browser.sessions.forgetClosedTab(session.tab.windowId, session.tab.sessionId)
   ))
-}, 100)
+}, 3000)
 
-async function tabState (tab) {
+async function tabState (tabId) {
   return {
-    screenshot: await browser.tabs.captureTab(tab.id),
-    title: tab.title
+    screenshot: await browser.tabs.captureTab(tabId),
+    title: await browser.tabs.get(tabId).title
   }
 }
-async function sendState (tab, state) {
-  return browser.tabs.executeScript(tab.id, {code: `setState(${JSON.stringify(state)})`})
+
+async function inject (tabId) {
+  await browser.tabs.executeScript(tabId, {file: '/suspended.js'})
 }
+
 class Suspender {
   async suspendTab (tab) {
     if (tab.url.startsWith(SuspendUrl)) {
@@ -38,33 +40,14 @@ class Suspender {
     }
 
     if (tab.active) {
-      const state = await tabState(tab)
-      const sTab = await browser.tabs.create({
+      await browser.tabs.create({
         active: false,
         url: `/suspended.html`,
         openerTabId: tab.id,
         index: tab.index + 1,
         windowId: tab.windowId
       })
-
-      cleanHistory()
-
-      try {
-        if (sendState(sTab, state)) {
-          await browser.tabs.update(sTab.id, {active: true})
-          await browser.tabs.discard([tab.id])
-          await browser.sessions.setTabValue(sTab.id, 'state', state)
-          return true
-        }
-      } catch (e) {
-        console.log(e)
-      }
-
-      try {
-        await browser.tabs.remove([sTab.id])
-      } catch (e) {}
-
-      return false
+      return true
     } else {
       try {
         await browser.tabs.discard([tab.id])
@@ -108,7 +91,33 @@ class Suspender {
           console.log(e)
         }
         return
-      default:
+      case 'get_state':
+        try {
+          let state = await browser.sessions.getTabValue(sender.tab.id, 'state')
+          if (state == null) {
+            if (sender.tab.openerTabId == null) {
+              throw new Error('orphaned suspend tab')
+            }
+            state = await tabState(sender.tab.openerTabId)
+            await browser.sessions.setTabValue(sender.tab.id, 'state', state)
+          }
+          return state
+        } catch (e) {
+          await browser.tabs.remove([sender.tab.id])
+          return
+        }
+      case 'finish_suspend':
+        try {
+          await browser.tabs.update(sender.tab.id, {active: true})
+          if (sender.tab.openerTabId != null) {
+            await browser.tabs.discard([sender.tab.openerTabId])
+          }
+        } catch (e) {
+          await browser.tabs.remove([sender.tab.id])
+        }
+        return
+      default
+:
         throw new Error('unknown message type')
     }
   }
@@ -116,33 +125,19 @@ class Suspender {
   async _start () {
     browser.tabs.onRemoved.addListener(async (tabId) => forgetClosedTabs())
     browser.runtime.onMessage.addListener(async (message, sender) => this._processSuspendTabMessage(message, sender))
+    browser.history.onVisited.addListener((item) => {
+      if (item.url === SuspendUrl) {
+        cleanHistory()
+      }
+    })
 
-    const states = await Promise.all(
-      (await browser.tabs.query({
-        url: SuspendUrl
-      })).map(async tab => {
-        return {
-          tab: tab,
-          state: await browser.sessions.getTabValue(tab.id, 'state')
-        }
-      })
+    // Can't use normal content scripts because we need to inject these into our
+    // own extension pages.
+    browser.webNavigation.onDOMContentLoaded.addListener(
+      async (details) => inject(details.tabId),
+      {url: [{urlEquals: SuspendUrl}]}
     )
-    const staleTabs = states
-      .filter(state => state.state == null)
-      .map(state => state.tab.id)
-
-    if (staleTabs.length > 0) {
-      await browser.tabs.remove(staleTabs)
-    }
-
-    // Cleanup
-    cleanHistory()
-    forgetClosedTabs()
-
-    // Send states in the background
-    states.filter(state => state.state != null)
-      .filter(active => active.tab.title === 'Suspended Tab')
-      .forEach(active => sendState(active.tab, active.state))
+    await Promise.all((await browser.tabs.query({url: SuspendUrl})).map(async tab => inject(tab.id)))
   }
 }
 

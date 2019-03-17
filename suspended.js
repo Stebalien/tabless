@@ -1,18 +1,23 @@
 /* global document, window, browser */
-'use strict'
 
-async function resume () {
-  await browser.runtime.sendMessage({
-    type: 'resume'
-  })
-}
+(async () => {
+  'use strict'
 
-document.body.addEventListener('click', () => resume())
-
-function setState(state) {
-  document.title = `${state.title} [z]`
-  if (state.screenshot) {
-    document.getElementById('screenshot').src = state.screenshot
+  async function resume () {
+    await browser.runtime.sendMessage({
+      type: 'resume'
+    })
   }
-  return true
-}
+
+  function setState (state) {
+    document.title = `${state.title} [z]`
+    if (state.screenshot) {
+      document.getElementById('screenshot').src = state.screenshot
+    }
+  }
+
+  document.body.addEventListener('click', () => resume())
+
+  setState(await browser.runtime.sendMessage({type: 'get_state'}))
+  await browser.runtime.sendMessage({type: 'finish_suspend'})
+})()
