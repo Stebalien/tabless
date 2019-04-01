@@ -116,8 +116,7 @@ class Suspender {
           await browser.tabs.remove([sender.tab.id])
         }
         return
-      default
-:
+      default:
         throw new Error('unknown message type')
     }
   }
