@@ -136,7 +136,13 @@ class Suspender {
       async (details) => inject(details.tabId),
       {url: [{urlEquals: SuspendUrl}]}
     )
-    await Promise.all((await browser.tabs.query({url: SuspendUrl})).map(async tab => inject(tab.id)))
+    await Promise.all((await browser.tabs.query({url: SuspendUrl})).map(async tab => {
+      try {
+        inject(tab.id)
+      } catch (e) {
+        console.error(e)
+      }
+    }))
   }
 }
 
