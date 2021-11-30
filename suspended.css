@@ -1,6 +1,17 @@
+@media (prefers-color-scheme: dark) {
+    body, #overlay, #screenshot {
+        background: black
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    body, #overlay, #screenshot {
+        background: white
+    }
+}
+
 body {
     cursor: pointer;
-    background: black;
 }
 
 #icon {
@@ -19,7 +30,6 @@ body {
     position: fixed;
     margin: 0;
     padding: 0;
-    background: black;
     opacity: 0.7;
 }
 
@@ -30,7 +40,6 @@ body {
     top: 0; 
     bottom: 0;
     margin: auto;
-    background: black;
     object-fit: cover;
     object-position: left;
 }
