@@ -10,7 +10,7 @@
   }
 
   function setState (state) {
-    document.title = `${state.title} [z]`
+    document.title = `💤 ${state.title}`
     if (state.screenshot) {
       document.getElementById('screenshot').src = state.screenshot
     }
