@@ -1,0 +1,27 @@
+body {
+    padding: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        color: white;
+        background: #1a1a1a;
+    }
+    button {
+        color: white;
+        background: #333;
+    }
+}
+
+.text-section-header {
+    font-weight: bold;
+}
+
+.panel-selection-list {
+    padding: 10px;
+}
+
+.panel-selection-list-item button {
+    text-align: center;
+    width: 100%;
+}
